@@ -1,0 +1,25 @@
+name: Enforce Release Tag Branch Pattern
+
+on:
+  create:
+    tags:
+      - "release/*"
+
+jobs:
+  enforce-release-tag-branch-pattern:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Get branch name from tag
+        id: get-branch-name
+        run: echo "::set-output name=branch_name::$(git for-each-ref --format '%(refname:short)' refs/tags/${{ github.ref }} | cut -d/ -f2)"
+
+      - name: Check if branch name matches pattern
+        run: |
+          branch_name=${{ steps.get-branch-name.outputs.branch_name }}
+          if [[ $branch_name =~ ^release/.*$ ]]; then
+            echo "Branch name is valid."
+          else
+            echo "Invalid branch name associated with the release tag. Please use the 'release/*' pattern."
+            exit 1
+          fi
