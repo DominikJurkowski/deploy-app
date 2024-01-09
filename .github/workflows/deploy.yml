@@ -15,14 +15,30 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: Check if target branch is release/*
+        id: check-branch
+        run: |
+          branch_name=$(echo ${{ github.event.release.target_commitish }} | cut -d/ -f2)
+          if [[ "$branch_name" =~ ^release/.*$ ]]; then
+            echo "Target branch is valid for deployment."
+            echo "::set-output name=valid_branch::true"
+          else
+            echo "Invalid target branch. Skipping deployment."
+            echo "::set-output name=valid_branch::false"
+          fi
+
       - name: Install Vercel CLI
+        if: steps.check-branch.outputs.valid_branch == 'true'
         run: npm install --global vercel
 
       - name: Pull Vercel Environment Information
+        if: steps.check-branch.outputs.valid_branch == 'true'
         run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
 
       - name: Build Project Artifacts
+        if: steps.check-branch.outputs.valid_branch == 'true'
         run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
 
       - name: Deploy Project Artifacts
+        if: steps.check-branch.outputs.valid_branch == 'true'
         run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
