@@ -3,7 +3,7 @@ name: Enforce Release Tag Branch Pattern
 on:
   create:
     tags:
-      - "release/*"
+      - 'release/*'
 
 jobs:
   enforce-release-tag-branch-pattern:
@@ -17,9 +17,11 @@ jobs:
       - name: Check if branch name matches pattern
         run: |
           branch_name=${{ steps.get-branch-name.outputs.branch_name }}
-          if [[ $branch_name =~ ^release/.*$ ]]; then
-            echo "Branch name is valid."
-          else
+          if [[ ! $branch_name =~ ^release/.*$ ]]; then
             echo "Invalid branch name associated with the release tag. Please use the 'release/*' pattern."
             exit 1
           fi
+
+      - name: Check if branch name matches pattern
+        if: steps.get-branch-name.outputs.branch_name != 'release/*'
+        run: echo "Invalid branch name associated with the release tag. Please use the 'release/*' pattern." && exit 1
