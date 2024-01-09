@@ -18,11 +18,11 @@ jobs:
       - name: Check if target branch is release/*
         id: check-branch
         run: |
-          branch_name=$(echo ${{ github.event.release.tag_name }} | cut -d/ -f2)
-          if [[ "$branch_name" =~ ^release\/.*$ ]]; then
-            echo "Target branch is valid for deployment."
+          branch_name=$(echo "${{ github.event.release.target_commitish }}" | cut -d/ -f2)
+          if [[ "$branch_name" =~ ^release/.*$ ]]; then
+            echo "Target branch is valid for deployment: $branch_name."
           else
-            echo "Error: Invalid target branch. Deployment aborted."
+            echo "Error: Invalid target branch ($branch_name). Deployment aborted."
             exit 1
           fi
 
