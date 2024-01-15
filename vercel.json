@@ -1,6 +1,7 @@
 {
-  "github": {
-    "enabled": false,
-    "silent": false
+  "git": {
+    "deploymentEnabled": {
+      "main": false
+    }
   }
 }
